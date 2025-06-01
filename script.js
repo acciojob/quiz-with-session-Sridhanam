@@ -1,7 +1,3 @@
-//your JS code here.
-
-// Do not change code below this line
-// This code will just display the questions to the screen
 const questions = [
   {
     question: "What is the capital of France?",
@@ -29,9 +25,20 @@ const questions = [
     answer: "Ottawa",
   },
 ];
+let userAnswers = [];
+function loadAnswerFromSessionStorage(){
+  const savedAnswer = sessionStorage.getItem('userAnswers');
+  if(savedAnswer){
+    userAnswers = JSON.parse(savedAnswer);
+  }
+}
 
+function savedAnswersToSessionStorage(){
+  sessionStorage.setItem('userAnswers',JSON.stringify(userAnswers));
+}
 // Display the quiz questions and choices
 function renderQuestions() {
+    const questionsElement = document.getElementById('questions');
   for (let i = 0; i < questions.length; i++) {
     const question = questions[i];
     const questionElement = document.createElement("div");
@@ -47,10 +54,33 @@ function renderQuestions() {
         choiceElement.setAttribute("checked", true);
       }
       const choiceText = document.createTextNode(choice);
+      questionElement.appendChild(document.createElement("br"));
       questionElement.appendChild(choiceElement);
       questionElement.appendChild(choiceText);
+
+      choiceElement.addEventListener('change',function(){
+        userAnswers[i] = choice;
+        savedAnswersToSessionStorage();
+      })
     }
+
     questionsElement.appendChild(questionElement);
+    questionElement.appendChild(document.createElement("br"));
+    questionElement.appendChild(document.createElement("br"));
+
   }
 }
+loadAnswerFromSessionStorage();
 renderQuestions();
+const btn = document.getElementById('submit');
+btn.addEventListener('click',function(){
+  const res = document.getElementById('score');
+  let count=0;
+  for(let i=0;i<questions.length;i++){
+    if(questions[i].answer == userAnswers[i]){
+      count++;
+    }
+  }
+  localStorage.setItem("score",count);
+  res.textContent = `Your score is ${count} out of 5.`;
+})
